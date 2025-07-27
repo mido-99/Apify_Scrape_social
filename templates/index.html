@@ -1,28 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Submit a Social Media Scrape Job</h2>
-<form method="post" action="/submit" class="mt-4">
-  <div class="mb-3">
-    <label for="platform" class="form-label">Platform</label>
-    <select class="form-select" id="platform" name="platform" required>
-      <option value="instagram">Instagram</option>
-      <option value="twitter">Twitter</option>
-      <option value="tiktok">TikTok</option>
-      <!-- Add more as needed -->
-    </select>
-  </div>
-  <div class="mb-3">
-    <label for="keyword" class="form-label">Competitor URL or Keyword</label>
-    <input type="text" class="form-control" id="keyword" name="keyword" required>
-  </div>
-  <div class="mb-3">
-    <label for="frequency" class="form-label">Frequency</label>
-    <select class="form-select" id="frequency" name="frequency" required>
-      <option value="once">Once</option>
-      <option value="daily">Daily</option>
-      <option value="weekly">Weekly</option>
-    </select>
-  </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Add Competitor to Monitor</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/add-monitor">
+                    <div class="mb-3">
+                        <label for="platform" class="form-label">Social Media Platform</label>
+                        <select class="form-select" id="platform" name="platform" required>
+                            <option value="">Choose platform...</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="twitter">Twitter/X</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="youtube">YouTube</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="competitor" class="form-label">Competitor Handle or URL</label>
+                        <input type="text" class="form-control" id="competitor" name="competitor" 
+                               placeholder="e.g., @competitor_name or https://instagram.com/competitor" required>
+                        <div class="form-text">Enter the competitor's username, handle, or full profile URL</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="frequency" class="form-label">Monitoring Frequency</label>
+                        <select class="form-select" id="frequency" name="frequency" required>
+                            <option value="">Choose frequency...</option>
+                            <option value="once">One-time check</option>
+                            <option value="daily">Daily monitoring</option>
+                            <option value="weekly">Weekly monitoring</option>
+                            <option value="monthly">Monthly monitoring</option>
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Start Monitoring</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %} 

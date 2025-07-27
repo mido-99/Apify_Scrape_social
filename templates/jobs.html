@@ -1,34 +1,70 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Scrape Job Statuses</h2>
-<table class="table table-striped mt-4">
-  <thead>
-    <tr>
-      <th>Platform</th>
-      <th>Keyword</th>
-      <th>Frequency</th>
-      <th>Status</th>
-      <th>Created</th>
-      <th>Results</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for job in jobs %}
-    <tr>
-      <td>{{ job.platform }}</td>
-      <td>{{ job.keyword }}</td>
-      <td>{{ job.frequency }}</td>
-      <td>{{ job.status }}</td>
-      <td>{{ job.created_at }}</td>
-      <td>
-        {% if job.status == 'complete' %}
-          <a href="/results/{{ job.id }}" class="btn btn-sm btn-success">View</a>
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Active Competitor Monitors</h2>
+            <a href="/" class="btn btn-primary">Add New Monitor</a>
+        </div>
+        
+        {% if monitors %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Platform</th>
+                        <th>Competitor</th>
+                        <th>Frequency</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for monitor in monitors %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-primary">{{ monitor.platform|title }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ monitor.competitor }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ monitor.frequency|title }}</span>
+                        </td>
+                        <td>
+                            {% if monitor.status == 'complete' %}
+                                <span class="badge bg-success">Complete</span>
+                            {% elif monitor.status == 'running' %}
+                                <span class="badge bg-warning">Running</span>
+                            {% elif monitor.status == 'pending' %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ monitor.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ monitor.updated_at or monitor.created_at }}</td>
+                        <td>
+                            {% if monitor.status == 'complete' %}
+                                <a href="/results/{{ monitor.id }}" class="btn btn-sm btn-success">View Data</a>
+                            {% else %}
+                                <span class="text-muted">Processing...</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-          <span class="text-muted">-</span>
+        <div class="text-center py-5">
+            <div class="alert alert-info">
+                <h4>No active monitors yet</h4>
+                <p>Start monitoring your competitors by adding them to the system.</p>
+                <a href="/" class="btn btn-primary">Add Your First Monitor</a>
+            </div>
+        </div>
         {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </div>
+</div>
 {% endblock %} 
