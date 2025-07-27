@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-dotenv
+apify-client
+supabase
+celery
+redis 
