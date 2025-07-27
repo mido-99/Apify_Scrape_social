@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Submit a Social Media Scrape Job</h2>
+<form method="post" action="/submit" class="mt-4">
+  <div class="mb-3">
+    <label for="platform" class="form-label">Platform</label>
+    <select class="form-select" id="platform" name="platform" required>
+      <option value="instagram">Instagram</option>
+      <option value="twitter">Twitter</option>
+      <option value="tiktok">TikTok</option>
+      <!-- Add more as needed -->
+    </select>
+  </div>
+  <div class="mb-3">
+    <label for="keyword" class="form-label">Competitor URL or Keyword</label>
+    <input type="text" class="form-control" id="keyword" name="keyword" required>
+  </div>
+  <div class="mb-3">
+    <label for="frequency" class="form-label">Frequency</label>
+    <select class="form-select" id="frequency" name="frequency" required>
+      <option value="once">Once</option>
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %} 

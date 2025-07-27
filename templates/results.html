@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Scrape Results</h2>
+{% if results %}
+  <div class="accordion mt-4" id="resultsAccordion">
+    {% for result in results %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading{{ loop.index }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+          Result {{ loop.index }} ({{ result.created_at }})
+        </button>
+      </h2>
+      <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#resultsAccordion">
+        <div class="accordion-body">
+          <pre>{{ result.data | tojson(indent=2) }}</pre>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info mt-4">No results found for this job yet.</div>
+{% endif %}
+{% endblock %} 
