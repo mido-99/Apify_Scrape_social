@@ -2,13 +2,17 @@ from fastapi import FastAPI, Request, Form, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from app.models import ScrapeJobRequest
+from app.models import CompetitorMonitorRequest
 from app.apify_utils import start_apify_actor
 from app.supabase_utils import insert_scrape_job, fetch_all_jobs, fetch_results_for_job
 from app.tasks import process_apify_run
 import os
 
-app = FastAPI()
+app = FastAPI(
+    title='Social Media Scraper',
+    docs_url='/docs',
+    redocs_url='/redocs',
+)
 
 # Mount static files (Bootstrap, etc.)
 static_dir = os.path.join(os.path.dirname(__file__), '..', 'static')
