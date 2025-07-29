@@ -25,6 +25,13 @@ def insert_scrape_request(platform, competitor, frequency, run_id, status):
     request_id = str(query_data.data[0]['id'])
     return request_id
 
+def fetch_request_data(request_id):
+    """
+    Returns all results for a given request.
+    """
+    res = supabase.table("scrape_requests").select("*").eq("id", request_id).execute()
+    return res.data[0]
+
 # Update job status in Supabase
 def update_request_status(request_id, status):
     """
@@ -34,19 +41,18 @@ def update_request_status(request_id, status):
     supabase.table("scrape_requests").update({"status": status, "updated_at": now}).eq("id", request_id).execute()
 
 # Insert scrape results into Supabase
-def insert_scrape_result(request_id, data):
+def insert_scrape_result(request_id, run_id, data):
     """
     Inserts a new result row for a request.
     """
-    result_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
-    supabase.table("scrape_results").insert({
-        "id": result_id,
+    list(map(lambda dataset_item: dataset_item.update({
+        "result_id": str(uuid4()),
         "request_id": request_id,
-        "data": data,
-        "created_at": now,
-    }).execute()
-    return result_id
+        "run_id": run_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        }), data))
+    supabase.table("scrape_results").insert(data).execute()
+    return True
 
 # Fetch all requests
 def fetch_all_requests():
@@ -62,4 +68,4 @@ def fetch_results_for_request(request_id):
     Returns all results for a given request.
     """
     res = supabase.table("scrape_results").select("*").eq("request_id", request_id).order("created_at", desc=True).execute()
-    return res.data 
+    return res.data

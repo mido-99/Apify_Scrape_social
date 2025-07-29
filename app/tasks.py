@@ -14,7 +14,7 @@ def process_apify_run(request_id, run_id, dataset_id):
         # 2. Fetch dataset items
         items = fetch_apify_dataset_items(dataset_id)
         # 3. Store results in Supabase
-        insert_scrape_result(request_id, items)
+        insert_scrape_result(request_id, run_id, items)
         update_request_status(request_id, "complete")
     else:
         update_request_status(request_id, f"failed: {run['status']}") 

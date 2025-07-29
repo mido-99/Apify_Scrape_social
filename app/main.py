@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from app.models import CompetitorMonitorRequest
 from app.apify_utils import start_apify_actor
-from app.supabase_utils import insert_scrape_request, fetch_all_requests, fetch_results_for_request
+from app.supabase_utils import insert_scrape_request, fetch_all_requests, fetch_results_for_request, fetch_request_data
 from app.tasks import process_apify_run
 import os
 
@@ -57,12 +57,13 @@ def monitors(request: Request):
     Show all active competitor monitors and their statuses.
     """
     monitors = fetch_all_requests()
-    return templates.TemplateResponse("jobs.html", {"request": request, "monitors": monitors})
+    return templates.TemplateResponse("requests.html", {"request": request, "monitors": monitors})
 
-@app.get("/results/{job_id}")
-def results(request: Request, job_id: str):
+@app.get("/results/{request_id}")
+def results(request: Request, request_id: str):
     """
     Show results for a given competitor monitor.
     """
-    results = fetch_results_for_request(job_id)
-    return templates.TemplateResponse("results.html", {"request": request, "results": results}) 
+    request_data = fetch_request_data(request_id)
+    results = fetch_results_for_request(request_id)
+    return templates.TemplateResponse("results.html", {"request": request, "results": results, 'request_data': request_data}) 
