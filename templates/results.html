@@ -13,49 +13,121 @@
                 <div class="col-12 mb-4">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Data from {{ result.created_at }}</h5>
+                            <h5 class="mb-0">{{request_data.platform}} Data </h5>
                             <span class="badge bg-secondary">{{ loop.index }}</span>
                         </div>
                         <div class="card-body">
-                            {% if result.data %}
-                                {% if result.data is sequence and result.data|length > 0 %}
-                                    <!-- If data is a list/array -->
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <thead>
-                                                <tr>
-                                                    {% for key in result.data[0].keys() %}
-                                                    <th>{{ key|title }}</th>
-                                                    {% endfor %}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for item in result.data %}
-                                                <tr>
-                                                    {% for value in item.values() %}
-                                                    <td>
-                                                        {% if value is string and value.startswith('http') %}
-                                                            <a href="{{ value }}" target="_blank">{{ value[:50] }}...</a>
-                                                        {% else %}
-                                                            {{ value }}
-                                                        {% endif %}
-                                                    </td>
-                                                    {% endfor %}
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                        </table>
+                            {% if result %}
+                                <!-- Interactive Table View -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">Table View</h6>
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#table-{{ loop.index }}" 
+                                                aria-expanded="true" aria-controls="table-{{ loop.index }}">
+                                            <i class="fas fa-table"></i> Toggle Table
+                                        </button>
                                     </div>
-                                {% else %}
-                                    <!-- If data is a single object or empty -->
-                                    <div class="alert alert-info">
-                                        <h6>Raw Data:</h6>
-                                        <pre class="mb-0"><code>{{ result.data | tojson(indent=2) }}</code></pre>
+                                    <div class="collapse show" id="table-{{ loop.index }}">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover table-sm">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        {% for key in result.keys() %}
+                                                        <th scope="col">{{ key|title|replace('_', ' ') }}</th>
+                                                        {% endfor %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        {% for key, value in result.items() %}
+                                                        <td>
+                                                            {% if value is string %}
+                                                                {% if value.startswith('http') %}
+                                                                    <a href="{{ value }}" target="_blank" class="text-primary text-decoration-none">
+                                                                        {{ value[:50] }}{% if value|length > 50 %}...{% endif %}
+                                                                    </a>
+                                                                {% elif value|length > 100 %}
+                                                                    <div class="mb-1">
+                                                                        <span class="text-muted">{{ value[:100] }}...</span>
+                                                                    </div>
+                                                                    <button class="btn btn-sm btn-outline-secondary" type="button" 
+                                                                            data-bs-toggle="collapse" data-bs-target="#text-{{ loop.index }}-{{ loop.index0 }}" 
+                                                                            aria-expanded="false">
+                                                                        <i class="fas fa-eye"></i> View Full Text
+                                                                    </button>
+                                                                    <div class="collapse mt-2" id="text-{{ loop.index }}-{{ loop.index0 }}">
+                                                                        <div class="bg-light p-2 rounded">
+                                                                            <pre class="mb-0 text-wrap">{{ value }}</pre>
+                                                                        </div>
+                                                                    </div>
+                                                                {% else %}
+                                                                    <span class="text-muted">{{ value }}</span>
+                                                                {% endif %}
+                                                            {% elif value is mapping %}
+                                                                <button class="btn btn-sm btn-outline-info" type="button" 
+                                                                        data-bs-toggle="collapse" data-bs-target="#json-{{ loop.index }}-{{ loop.index0 }}" 
+                                                                        aria-expanded="false">
+                                                                    <i class="fas fa-code"></i> View JSON
+                                                                </button>
+                                                                <div class="collapse mt-2" id="json-{{ loop.index }}-{{ loop.index0 }}">
+                                                                    <pre class="bg-light p-2 rounded"><code>{{ value | tojson(indent=2) }}</code></pre>
+                                                                </div>
+                                                            {% elif value is sequence and value|length > 0 %}
+                                                                <div class="mb-1">
+                                                                    <span class="badge bg-secondary">{{ value|length }} items</span>
+                                                                </div>
+                                                                <button class="btn btn-sm btn-outline-warning" type="button" 
+                                                                        data-bs-toggle="collapse" data-bs-target="#list-{{ loop.index }}-{{ loop.index0 }}" 
+                                                                        aria-expanded="false">
+                                                                    <i class="fas fa-list"></i> View List
+                                                                </button>
+                                                                <div class="collapse mt-2" id="list-{{ loop.index }}-{{ loop.index0 }}">
+                                                                    <ul class="list-group list-group-flush">
+                                                                        {% for item in value %}
+                                                                        <li class="list-group-item py-1">{{ item }}</li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </div>
+                                                            {% elif value is number %}
+                                                                <span class="badge bg-primary">{{ value }}</span>
+                                                            {% elif value is boolean %}
+                                                                {% if value %}
+                                                                    <span class="badge bg-success"><i class="fas fa-check"></i> True</span>
+                                                                {% else %}
+                                                                    <span class="badge bg-danger"><i class="fas fa-times"></i> False</span>
+                                                                {% endif %}
+                                                            {% else %}
+                                                                <span class="text-muted">{{ value }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
-                                {% endif %}
+                                </div>
+
+                                <!-- Raw JSON View -->
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">Raw JSON</h6>
+                                        <button class="btn btn-sm btn-outline-primary" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#json-raw-{{ loop.index }}" 
+                                                aria-expanded="false" aria-controls="json-raw-{{ loop.index }}">
+                                            <i class="fas fa-code"></i> Toggle JSON
+                                        </button>
+                                    </div>
+                                    <div class="collapse" id="json-raw-{{ loop.index }}">
+                                        <div class="bg-dark text-light p-3 rounded">
+                                            <pre class="mb-0"><code class="text-light">{{ result | tojson(indent=2) }}</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
                             {% else %}
                                 <div class="alert alert-warning">
-                                    No data available for this result.
+                                    <i class="fas fa-exclamation-triangle"></i> No data available for this result.
                                 </div>
                             {% endif %}
                         </div>
