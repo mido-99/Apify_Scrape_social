@@ -22,7 +22,7 @@
                 </thead>
                 <tbody>
                     {% for monitor in monitors %}
-                    <tr>
+                    <tr style="cursor: pointer;" onclick="window.location.href='/requests/{{ monitor.id }}'">
                         <td>
                             <span class="badge bg-primary">{{ monitor.platform|title }}</span>
                         </td>
@@ -46,9 +46,9 @@
                         <td>{{ monitor.updated_at or monitor.created_at }}</td>
                         <td>
                             {% if monitor.status == 'complete' %}
-                                <a href="/results/{{ monitor.id }}" class="btn btn-sm btn-success">View Data</a>
+                                <span class="badge bg-success">View Data</span>
                             {% else %}
-                                <span class="text-muted">Processing...</span>
+                                <span class="badge bg-secondary">Processing...</span>
                             {% endif %}
                         </td>
                     </tr>

@@ -51,16 +51,17 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
     process_apify_run.delay(request_id, run_id, dataset_id)
     return RedirectResponse(url="/monitors", status_code=status.HTTP_303_SEE_OTHER)
 
-@app.get("/monitors")
-def monitors(request: Request):
+@app.get("/requests")
+def all_results(request: Request):
     """
     Show all active competitor monitors and their statuses.
     """
     monitors = fetch_all_requests()
     return templates.TemplateResponse("requests.html", {"request": request, "monitors": monitors})
 
-@app.get("/results/{request_id}")
-def results(request: Request, request_id: str):
+
+@app.get("/requests/{request_id}")
+def get_result(request: Request, request_id: str):
     """
     Show results for a given competitor monitor.
     """
