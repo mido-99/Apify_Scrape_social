@@ -40,21 +40,29 @@ def update_request_status(request_id, status):
     now = datetime.now(timezone.utc).isoformat()
     supabase.table("scrape_requests").update({"status": status, "updated_at": now}).eq("id", request_id).execute()
 
-# Insert scrape results into Supabase
-def insert_scrape_result(request_id, run_id, data):
+def process_dataset(request_id, run_id, items: list[dict]):
+    """Process dataset items before saving into supabase
     """
-    Inserts a new result row for a request.
-    """
-    list(map(lambda dataset_item: dataset_item.update({
+    for dataset_item in items:
+        # Remove extra fields
+        if 'inputUrl' in dataset_item.keys():
+            del dataset_item['inputUrl']
+        # Add new keys
+        dataset_item.update({
         "result_id": str(uuid4()),
         "request_id": request_id,
         "run_id": run_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
-        }), data))
-    supabase.table("scrape_results").insert(data).execute()
+        })
+
+def insert_scrape_result(request_id, run_id, data):
+    """
+    Inserts a new result row for a request into Supabase.
+    """
+    process_dataset(request_id, run_id, data)
+    supabase.table("posts").insert(data).execute()
     return True
 
-# Fetch all requests
 def fetch_all_requests():
     """
     Returns all requests for display in the UI.
@@ -67,5 +75,5 @@ def fetch_results_for_request(request_id):
     """
     Returns all results for a given request.
     """
-    res = supabase.table("scrape_results").select("*").eq("request_id", request_id).order("created_at", desc=True).execute()
+    res = supabase.table("posts").select("*").eq("request_id", request_id).order("created_at", desc=True).execute()
     return res.data
