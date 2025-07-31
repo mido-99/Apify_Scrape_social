@@ -43,11 +43,19 @@ def update_request_status(request_id, status):
 def process_dataset(request_id, run_id, items: list[dict]):
     """Process dataset items before saving into supabase
     """
+    ALLOWED_DB_COLUMNS = {
+        "id", "type", "shortCode", "caption", "url", "commentsCount", "firstComment", "dimensionsHeight", "dimensionsWidth",
+        "displayUrl", "alt", "likesCount", "ownerFullName", "ownerUsername", "ownerId", "isSponsored", "paidPartnership",  
+        "isCommentsDisabled", "hashtags", "mentions", "images", "latestComments",  "commentOwners", "childPosts"
+        }
+    NOT_ALLOWED_COLUMNS = {'inputUrl'}
+    
     for dataset_item in items:
         # Remove extra fields
-        if 'inputUrl' in dataset_item.keys():
-            del dataset_item['inputUrl']
-        # Add new keys
+        keys_to_remove = [key for key in dataset_item if key in NOT_ALLOWED_COLUMNS or key not in ALLOWED_DB_COLUMNS]
+        for key in keys_to_remove:
+            dataset_item.pop(key, None)
+        # Add new fields
         dataset_item.update({
         "result_id": str(uuid4()),
         "request_id": request_id,
