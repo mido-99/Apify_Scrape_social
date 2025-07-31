@@ -11,7 +11,6 @@ import os
 app = FastAPI(
     title='Social Media Scraper',
     docs_url='/docs',
-    redocs_url='/redocs',
 )
 
 # Mount static files (Bootstrap, etc.)
@@ -34,22 +33,29 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
     Handle form submission to add a new competitor monitor.
     """
     # For demo: use a generic actor (user should customize this)
-    actor_id = "culc72xb7MP3EbaeX"  # Example actor
+    actor_id = "shu8hvrXbJbY3Eb9W"  # Example actor
     run_input = {
-        "maxItems": 2,
-        "startUrls": [
-            "https://www.instagram.com/cristiano"
-        ],
-        "until": "2025-06-01"
-    }
+        'addParentData': False,
+        'directUrls': [
+                competitor
+            ],
+        'enhanceUserSearchWithFacebookPage': False,
+        'isUserReelFeedURL': False,
+        'isUserTaggedFeedURL': False,
+        'resultsLimit': 2,
+        'resultsType': 'posts',
+        'searchLimit': 1,
+        'searchType': 'hashtag'
+        }
+    # Start actor immediately (non-blocking)
     run = start_apify_actor(actor_id, run_input)
     run_id = run["id"]
     dataset_id = run["defaultDatasetId"]
     # Insert monitor in Supabase
     request_id = insert_scrape_request(platform, competitor, frequency, run_id, status="pending")
-    # Queue background task
+    # Queue background task to poll and process results
     process_apify_run.delay(request_id, run_id, dataset_id)
-    return RedirectResponse(url="/monitors", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/requests", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/requests")
 def all_results(request: Request):
