@@ -46,7 +46,7 @@ def process_dataset(request_id, run_id, items: list[dict]):
     ALLOWED_DB_COLUMNS = {
         "id", "type", "shortCode", "caption", "url", "commentsCount", "firstComment", "dimensionsHeight", "dimensionsWidth",
         "displayUrl", "alt", "likesCount", "ownerFullName", "ownerUsername", "ownerId", "isSponsored", "paidPartnership",  
-        "isCommentsDisabled", "hashtags", "mentions", "images", "latestComments",  "commentOwners", "childPosts"
+        "isCommentsDisabled", "hashtags", "mentions", "images", "latestComments",  "commentOwners", "childPosts", 'taggedUsers'
         }
     NOT_ALLOWED_COLUMNS = {'inputUrl'}
     
