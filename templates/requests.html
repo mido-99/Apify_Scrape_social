@@ -17,7 +17,6 @@
                         <th>Frequency</th>
                         <th>Status</th>
                         <th>Last Updated</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,7 +29,7 @@
                             <strong>{{ monitor.competitor }}</strong>
                         </td>
                         <td>
-                            <span class="badge bg-info">{{ monitor.frequency|title }}</span>
+                            <span class="badge bg-primary">{{ monitor.frequency|title }}</span>
                         </td>
                         <td>
                             {% if monitor.status == 'complete' %}
@@ -44,13 +43,6 @@
                             {% endif %}
                         </td>
                         <td>{{ monitor.updated_at or monitor.created_at }}</td>
-                        <td>
-                            {% if monitor.status == 'complete' %}
-                                <span class="badge bg-success">View Data</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Processing...</span>
-                            {% endif %}
-                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
