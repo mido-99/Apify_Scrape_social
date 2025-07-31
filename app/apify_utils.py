@@ -1,14 +1,14 @@
 from apify_client import ApifyClient
 from app.config import settings
-import asyncio
 
 # Helper to start an Apify actor with input and return the run info
 def start_apify_actor(actor_id: str, run_input: dict) -> dict:
     """
-    Starts an Apify actor and returns the run object.
+    Starts an Apify actor and returns the run object immediately without waiting.
     """
     client = ApifyClient(settings.APIFY_API)
-    run = client.actor(actor_id).call(run_input=run_input)
+    # Use start() instead of call() to avoid blocking
+    run = client.actor(actor_id).start(run_input=run_input)
     return run
 
 # Helper to poll Apify actor run until finished (sync version for Celery)
