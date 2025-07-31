@@ -25,7 +25,6 @@ def start_celery_worker():
     """Start Celery worker in a separate thread"""
     global celery_process
     try:
-        logger.info("Starting Celery worker...")
         celery_process = subprocess.Popen([
             sys.executable, "-m", "celery", 
             "-A", "app.celery_app.celery", 
@@ -41,27 +40,21 @@ def stop_celery_worker():
     """Stop Celery worker"""
     global celery_process
     if celery_process:
-        logger.info("Stopping Celery worker...")
         celery_process.terminate()
         celery_process.wait()
-        logger.info("Celery worker stopped")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan context manager for FastAPI startup and shutdown"""
     # Startup
-    logger.info("Starting application...")
     celery_thread = threading.Thread(target=start_celery_worker, daemon=True)
     celery_thread.start()
     # Give Celery a moment to start
     time.sleep(3)
-    logger.info("Application startup complete")
     yield
     
     # Shutdown
-    logger.info("Shutting down application...")
     stop_celery_worker()
-    logger.info("Application shutdown complete")
 
 app = FastAPI(
     title='Social Media Scraper',
