@@ -5,4 +5,5 @@ python-dotenv
 apify-client
 supabase
 celery
-redis 
+redis
+python-multipart
