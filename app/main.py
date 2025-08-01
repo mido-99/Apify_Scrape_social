@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request, Form, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from app.models import CompetitorMonitorRequest
 from app.apify_utils import start_apify_actor
-from app.supabase_utils import insert_scrape_request, fetch_all_requests, fetch_results_for_request, fetch_request_data
+from app.supabase_utils import (
+    insert_scrape_request, fetch_all_requests, fetch_results_for_request, fetch_request_data, insert_request_run_id
+)
 from app.tasks import process_apify_run
 import os
 import logging
@@ -18,48 +20,9 @@ import time
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Global variable to track Celery worker process
-celery_process = None
-
-def start_celery_worker():
-    """Start Celery worker in a separate thread"""
-    global celery_process
-    try:
-        celery_process = subprocess.Popen([
-            sys.executable, "-m", "celery", 
-            "-A", "app.celery_app.celery", 
-            "worker", 
-            "--loglevel=info",
-            "--pool=solo"
-        ])
-        logger.info("Celery worker started successfully")
-    except Exception as e:
-        logger.error(f"Failed to start Celery worker: {e}")
-
-def stop_celery_worker():
-    """Stop Celery worker"""
-    global celery_process
-    if celery_process:
-        celery_process.terminate()
-        celery_process.wait()
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Lifespan context manager for FastAPI startup and shutdown"""
-    # Startup
-    celery_thread = threading.Thread(target=start_celery_worker, daemon=True)
-    celery_thread.start()
-    # Give Celery a moment to start
-    time.sleep(3)
-    yield
-    
-    # Shutdown
-    stop_celery_worker()
-
 app = FastAPI(
     title='Social Media Scraper',
     docs_url='/docs',
-    lifespan=lifespan,
 )
 
 # Mount static files (Bootstrap, etc.)
@@ -84,13 +47,10 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
     try:
         logger.info(f"Starting new monitor for platform: {platform}, competitor: {competitor}, frequency: {frequency}")
 
-        # For demo: use a generic actor (user should customize this)
         actor_id = "shu8hvrXbJbY3Eb9W"  # Example actor
         run_input = {
             'addParentData': False,
-            'directUrls': [
-                    competitor
-                ],
+            'directUrls': [competitor],
             'enhanceUserSearchWithFacebookPage': False,
             'isUserReelFeedURL': False,
             'isUserTaggedFeedURL': False,
@@ -100,6 +60,10 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
             'searchType': 'hashtag'
             }
 
+        # Insert monitor in Supabase
+        request_id = insert_scrape_request(platform, competitor, frequency, run_id=None, status="pending")
+        logger.info(f"Request inserted with ID: {request_id}")
+
         # Start actor immediately (non-blocking)
         logger.info(f"Starting Apify actor: {actor_id}")
         run = start_apify_actor(actor_id, run_input)
@@ -107,19 +71,33 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
         dataset_id = run["defaultDatasetId"]
         logger.info(f"Apify run started - run_id: {run_id}, dataset_id: {dataset_id}")
 
-        # Insert monitor in Supabase
-        request_id = insert_scrape_request(platform, competitor, frequency, run_id, status="pending")
-        logger.info(f"Request inserted with ID: {request_id}")
+        # Insert run_id in Supabase request
+        insert_request_run_id(request_id, run_id)
+        logger.info(f"run_id: {run_id} inserted for request_id: {request_id}")
 
         # Queue background task to poll and process results
-        logger.info(f"Queuing background task for request_id: {request_id}")
-        process_apify_run.delay(request_id, run_id, dataset_id)
+        # process_apify_run.delay(request_id, run_id, dataset_id)
 
         return RedirectResponse(url="/requests", status_code=status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
         logger.error(f"Error in add_monitor: {str(e)}", exc_info=True)
         raise
+
+@app.post("/webhook/apify")
+async def apify_webhook(payload: dict):
+    # # payload will have at least runId and eventType
+    # run_id = payload["runId"]
+    # request_id = payload.get("requestId")  # from your template
+    # # fetch the dataset, process & save
+    # # … your process_apify_run logic here, or just call it directly
+    # await process_and_save(request_id, run_id)
+    # # update status
+    # update_scrape_request(request_id, status="completed")
+    print('received json from Apify')
+    print(payload)
+    print(type(payload))
+    return JSONResponse({'data': payload}, status_code=200)
 
 @app.get("/requests")
 def all_results(request: Request):

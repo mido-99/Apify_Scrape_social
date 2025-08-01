@@ -32,13 +32,20 @@ def fetch_request_data(request_id):
     res = supabase.table("scrape_requests").select("*").eq("id", request_id).execute()
     return res.data[0]
 
-# Update job status in Supabase
 def update_request_status(request_id, status):
     """
     Updates the status and updated_at of a request.
     """
     now = datetime.now(timezone.utc).isoformat()
     supabase.table("scrape_requests").update({"status": status, "updated_at": now}).eq("id", request_id).execute()
+
+def insert_request_run_id(request_id, run_id):
+    """
+    Insert Apify run_id into Supabase request.
+    """
+    now = datetime.now(timezone.utc).isoformat()
+    supabase.table("scrape_requests").update({"run_id": run_id, "updated_at": now}).eq("id", request_id).execute()
+    update_request_status(request_id, "running")
 
 def process_dataset(request_id, run_id, items: list[dict]):
     """Process dataset items before saving into supabase
