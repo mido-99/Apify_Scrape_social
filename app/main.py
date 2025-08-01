@@ -82,7 +82,7 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
         raise
 
 @app.post("/webhook/apify")
-def apify_webhook(request: Request, payload: dict):
+async def apify_webhook(request: Request, payload: dict):
 
     # payload will have at least runId and eventType
     run_id = payload["runId"]
@@ -90,7 +90,7 @@ def apify_webhook(request: Request, payload: dict):
     logger.info(f"From apify_webhook: {payload}")
     
     # Process Apify run upon finish
-    process_apify_run(request_id, run_id)
+    await process_apify_run(request_id, run_id)
 
     return JSONResponse({'data': payload}, status_code=200)
 
