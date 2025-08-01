@@ -75,9 +75,6 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
         insert_request_run_id(request_id, run_id)
         logger.info(f"run_id: {run_id} inserted for request_id: {request_id}")
 
-        # Queue background task to poll and process results
-        # process_apify_run.delay(request_id, run_id, dataset_id)
-
         return RedirectResponse(url="/requests", status_code=status.HTTP_303_SEE_OTHER)
 
     except Exception as e:
@@ -85,18 +82,16 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
         raise
 
 @app.post("/webhook/apify")
-async def apify_webhook(payload: dict):
-    # # payload will have at least runId and eventType
-    # run_id = payload["runId"]
-    # request_id = payload.get("requestId")  # from your template
-    # # fetch the dataset, process & save
-    # # … your process_apify_run logic here, or just call it directly
-    # await process_and_save(request_id, run_id)
-    # # update status
-    # update_scrape_request(request_id, status="completed")
-    print('received json from Apify')
-    print(payload)
-    print(type(payload))
+def apify_webhook(request: Request, payload: dict):
+
+    # payload will have at least runId and eventType
+    run_id = payload["runId"]
+    request_id = fetch_request_data(run_id=run_id).get('id')
+    logger.info(f"From apify_webhook: {payload}")
+    
+    # Process Apify run upon finish
+    process_apify_run(request_id, run_id)
+
     return JSONResponse({'data': payload}, status_code=200)
 
 @app.get("/requests")

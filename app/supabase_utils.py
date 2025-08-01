@@ -25,11 +25,14 @@ def insert_scrape_request(platform, competitor, frequency, run_id, status):
     request_id = str(query_data.data[0]['id'])
     return request_id
 
-def fetch_request_data(request_id):
+def fetch_request_data(request_id=None, run_id=None):
     """
     Returns all results for a given request.
     """
-    res = supabase.table("scrape_requests").select("*").eq("id", request_id).execute()
+    if run_id is not None:
+        res = supabase.table("scrape_requests").select("*").eq("run_id", run_id).execute()
+    else:
+        res = supabase.table("scrape_requests").select("*").eq("id", request_id).execute()
     return res.data[0]
 
 def update_request_status(request_id, status):

@@ -8,7 +8,7 @@ def start_apify_actor(actor_id: str, run_input: dict) -> dict:
     Starts an Apify actor and returns the run object immediately without waiting.
     """
     # base_url = 'https://' + os.environ['VERCEL_URL']
-    base_url = 'https://c9572d71380d.ngrok-free.app'
+    base_url = 'https://1a433fc0e166.ngrok-free.app'
     webhook_url = base_url + '/webhook/apify'
     
     client = ApifyClient(settings.APIFY_API)
@@ -17,10 +17,10 @@ def start_apify_actor(actor_id: str, run_input: dict) -> dict:
         run_input=run_input,
         # Webhook to send notification once finished 
         webhooks=[{
-            'event_types': ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
+            'event_types': ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED', 'ACTOR.RUN.ABORTED'],
             'request_url': webhook_url,
             'payload_template': '''{
-                "runId": {{resource.id}}, "status": {{resource.status}}, "datasetId": {{resource.defaultDatasetId}}
+                "runId": {{resource.id}}, "status": {{resource.status}}
                 }'''
         }])
     return run
