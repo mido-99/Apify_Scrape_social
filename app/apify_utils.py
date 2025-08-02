@@ -1,6 +1,11 @@
+import logging
 import os, asyncio
 from apify_client import ApifyClient, ApifyClientAsync
 from app.config import settings
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Helper to start an Apify actor with input and return the run info
 def start_apify_actor(actor_id: str, run_input: dict) -> dict:
@@ -23,6 +28,10 @@ def start_apify_actor(actor_id: str, run_input: dict) -> dict:
                 "runId": {{resource.id}}, "status": {{resource.status}}
                 }'''
         }])
+    logging.info(f"""Actor started with the following:
+                 - webhook URL: {webhook_url}
+                 - run = {run}
+                 """)
     return run
 
 # Helper to poll Apify actor run until finished (sync version for Celery)
