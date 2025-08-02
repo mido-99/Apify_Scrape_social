@@ -12,7 +12,7 @@ def start_apify_actor(actor_id: str, run_input: dict) -> dict:
     """
     Starts an Apify actor and returns the run object immediately without waiting.
     """
-    base_url = 'https://' + os.environ['VERCEL_URL']
+    base_url = 'https://' + os.environ['VERCEL_PROJECT_PRODUCTION_URL']
     # base_url = 'https://8be70150f90f.ngrok-free.app'
     webhook_url = base_url + '/webhook/apify'
     

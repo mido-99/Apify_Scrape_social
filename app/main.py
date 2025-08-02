@@ -54,7 +54,7 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
             'enhanceUserSearchWithFacebookPage': False,
             'isUserReelFeedURL': False,
             'isUserTaggedFeedURL': False,
-            'resultsLimit': 2,
+            'resultsLimit': 1,
             'resultsType': 'posts',
             'searchLimit': 1,
             'searchType': 'hashtag'
@@ -87,7 +87,7 @@ async def apify_webhook(request: Request, payload: dict):
     # payload will have at least runId and eventType
     run_id = payload["runId"]
     request_id = fetch_request_data(run_id=run_id).get('id')
-    logger.info(f"From apify_webhook: {payload}")
+    logger.info(f"[WEBHOOK] Received run {run_id} with payload: {payload}")
     
     # Process Apify run upon finish
     await process_apify_run(request_id, run_id)
