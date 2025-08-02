@@ -1,22 +1,24 @@
 from supabase import create_client
-from app.config import settings
 from datetime import datetime, timezone
 from uuid import uuid4
+
+from app.config import settings
 
 # Initialize Supabase client
 supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
 
 # Insert a new scrape job into Supabase
-def insert_scrape_request(platform, competitor, frequency, run_id, status):
+def insert_scrape_request(platform, competitor, num_posts, frequency, run_id, status):
     """
     Inserts a new scrape request row and returns the request id.
     """
     now = datetime.now(timezone.utc).isoformat()
     data = {
         "platform": platform,
-        "competitor": competitor,
-        "frequency": frequency,
         "run_id": run_id,
+        "competitor": competitor,
+        "num_posts": num_posts,
+        "frequency": frequency,
         "status": status,
         "created_at": now,
         "updated_at": now,

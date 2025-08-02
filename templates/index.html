@@ -28,8 +28,14 @@
                     </div>
                     
                     <div class="mb-3">
+                        <label for="num_posts" class="form-label">Number of Posts</label>
+                        <input type="number" class="form-control" id="num_posts" name="num_posts" min="1" max="5" 
+                        required placeholder="e.g., 3">
+                    </div>
+                    
+                    <div class="mb-3">
                         <label for="frequency" class="form-label">Monitoring Frequency</label>
-                        <select class="form-select" id="frequency" name="frequency" required>
+                        <select class="form-select" id="frequency" name="frequency">
                             <option disabled selected value="">Choose frequency...</option>
                             <option value="once">Onece</option>
                             <option value="daily">Daily</option>

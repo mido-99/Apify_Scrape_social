@@ -2,19 +2,15 @@ from fastapi import FastAPI, Request, Form, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from contextlib import asynccontextmanager
-from app.models import CompetitorMonitorRequest
 from app.apify_utils import start_apify_actor
 from app.supabase_utils import (
     insert_scrape_request, fetch_all_requests, fetch_results_for_request, fetch_request_data, insert_request_run_id
 )
 from app.tasks import process_apify_run
+
 import os
 import logging
-import subprocess
-import sys
-import threading
-import time
+from typing import Optional
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -40,7 +36,12 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post("/add-monitor")
-def add_monitor(request: Request, platform: str = Form(...), competitor: str = Form(...), frequency: str = Form(...)):
+def add_monitor(
+    request: Request, 
+    platform: str = Form(...), 
+    competitor: str = Form(...), 
+    num_posts: int = Form(...), 
+    frequency: Optional[str] = Form(None)): # How to set default value for optoinal form input
     """
     Handle form submission to add a new competitor monitor.
     """
@@ -54,14 +55,14 @@ def add_monitor(request: Request, platform: str = Form(...), competitor: str = F
             'enhanceUserSearchWithFacebookPage': False,
             'isUserReelFeedURL': False,
             'isUserTaggedFeedURL': False,
-            'resultsLimit': 1,
+            'resultsLimit': num_posts,
             'resultsType': 'posts',
             'searchLimit': 1,
             'searchType': 'hashtag'
             }
 
         # Insert monitor in Supabase
-        request_id = insert_scrape_request(platform, competitor, frequency, run_id=None, status="pending")
+        request_id = insert_scrape_request(platform, competitor, num_posts, frequency, run_id=None, status="pending")
         logger.info(f"Request inserted with ID: {request_id}")
 
         # Start actor immediately (non-blocking)
