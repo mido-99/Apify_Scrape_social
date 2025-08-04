@@ -1,6 +1,9 @@
 import logging
-import os, asyncio
+import os
+import asyncio
+import platform
 from apify_client import ApifyClient, ApifyClientAsync
+
 from app.config import settings
 
 # Set up logging
@@ -12,8 +15,9 @@ def start_apify_actor(actor_id: str, run_input: dict) -> dict:
     """
     Starts an Apify actor and returns the run object immediately without waiting.
     """
-    # base_url = 'https://' + os.environ['VERCEL_PROJECT_PRODUCTION_URL']
-    base_url = 'https://43025d9ac2ed.ngrok-free.app'
+    base_url = 'https://' + os.environ['VERCEL_PROJECT_PRODUCTION_URL']
+    if platform.system() == 'Windows':      # Local debugging
+        base_url = 'https://43025d9ac2ed.ngrok-free.app'
     webhook_url = base_url + '/webhook/apify'
     
     client = ApifyClient(settings.APIFY_API)
