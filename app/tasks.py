@@ -1,7 +1,7 @@
-from app.celery_app import celery
+import logging
+
 from app.apify_utils import poll_apify_run, fetch_apify_dataset_items
 from app.supabase_utils import update_request_status, insert_scrape_result
-import logging
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 async def process_apify_run(request_id, run_id):
     """
-    Celery background task to poll Apify run, fetch results, and store in Supabase.
+    Task to poll Apify run, fetch results, and store in Supabase.
     """
     try:
         logger.info(f"Polling Apify run: {run_id}")

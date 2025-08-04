@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Form, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+
 from app.apify_utils import start_apify_actor
 from app.supabase_utils import (
     insert_scrape_request, fetch_all_requests, fetch_results_for_request, fetch_request_data, insert_request_run_id
